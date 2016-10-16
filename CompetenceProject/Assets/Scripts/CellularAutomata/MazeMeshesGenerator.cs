@@ -8,6 +8,7 @@ public class MazeMeshesGenerator : MonoBehaviour
     public SquareGrid squareGrid;
     public MeshFilter hedges;
     public MeshFilter hedgeTops;
+    public bool showHedgeTexture = false;
 
     List<Vector3> vertices;
     List<int> triangles;
@@ -128,34 +129,42 @@ public class MazeMeshesGenerator : MonoBehaviour
         int tileAmount = 10;
         Vector2[] uvs = new Vector2[hedgesVertices.Count];
 
-        /* 
-        for (int i = 0; i < hedgesVertices.Count; i++) //render order is messed up.
+        if (showHedgeTexture)
         {
-            float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
-            float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
-            uvs[i] = new Vector2(percentX, percentY);
-        }*/
-
-        for (int i = 0; i < hedgesMesh.vertices.Length; i++) //this fixes the stretching issue, but the patterns is repeated too much, and the render order is still messed up.
-        {
-            float x = hedgesMesh.vertices[i].x;
-
-            if (i + 1 < hedgesMesh.vertices.Length && x == hedgesMesh.vertices[i + 1].x && i > 1 && hedgesMesh.vertices[i - 1].x == x)
+            for (int i = 0; i < hedgesVertices.Count; i++) //render order is messed up.
             {
-                //Fix bug texture
-                x = hedgesMesh.vertices[i].z;
-
+                /*float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
+                float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
+                 * */
+                float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
+                float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
+                uvs[i] = new Vector2(percentX, percentY);
+                /*percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
+                percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount;
+                uvs[i+1] = new Vector2(percentX, percentY);*/
             }
-            uvs[i] = new Vector2(x, hedgesMesh.vertices[i].y);
 
-        }
 
-        hedgesMesh.RecalculateBounds();
+            /*for (int i = 0; i < hedgesMesh.vertices.Length; i++) //this fixes the stretching issue, but the patterns is repeated too much, and the render order is still messed up.
+            {
+                float x = hedgesMesh.vertices[i].x;
 
-        hedgesMesh.RecalculateNormals();
+                if (i + 1 < hedgesMesh.vertices.Length && x == hedgesMesh.vertices[i + 1].x && i > 1 && hedgesMesh.vertices[i - 1].x == x)
+                {
+                    //Fix bug texture
+                    x = hedgesMesh.vertices[i].z;
 
-        hedgesMesh.uv = uvs;
+                }
+                uvs[i] = new Vector2(x, hedgesMesh.vertices[i].y);
         
+            }*/
+
+            hedgesMesh.RecalculateBounds();
+
+            hedgesMesh.RecalculateNormals();
+
+            hedgesMesh.uv = uvs;
+        }
 
         MeshCollider hedgesCollider = gameObject.AddComponent<MeshCollider>();
         //MeshCollider hedgesCollider = gameObject.GetComponent<MeshCollider>();
