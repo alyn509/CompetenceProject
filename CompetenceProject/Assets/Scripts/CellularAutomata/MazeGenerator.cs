@@ -11,6 +11,7 @@ public class MazeGenerator : MonoBehaviour
 
     public string seed;
     public bool useRandomSeed;
+    public Camera mainCamera;
 
     [Range(0, 100)]
     public int randomFillPercent;
@@ -62,6 +63,7 @@ public class MazeGenerator : MonoBehaviour
 
         MazeMeshesGenerator meshGen = GetComponent<MazeMeshesGenerator>();
         meshGen.GenerateMesh(borderedMap, 1);
+        mainCamera.nearClipPlane += 1f;
     }
 
     void ProcessMap()
