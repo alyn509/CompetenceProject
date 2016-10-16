@@ -130,22 +130,18 @@ public class MazeMeshesGenerator : MonoBehaviour
         Vector2[] uvs = new Vector2[hedgesVertices.Count];
 
         if (showHedgeTexture)
-        {
+        {/*
             for (int i = 0; i < hedgesVertices.Count; i++) //render order is messed up.
             {
-                /*float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
-                float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
-                 * */
                 float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
                 float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
+                 
                 uvs[i] = new Vector2(percentX, percentY);
-                /*percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
-                percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount;
-                uvs[i+1] = new Vector2(percentX, percentY);*/
-            }
+                //is the issue when only the z-coordinate is changed between vertices on a wall?
+            }*/
 
 
-            /*for (int i = 0; i < hedgesMesh.vertices.Length; i++) //this fixes the stretching issue, but the patterns is repeated too much, and the render order is still messed up.
+            for (int i = 0; i < hedgesMesh.vertices.Length; i++) //this fixes the stretching issue, but the patterns is repeated too much, and the render order is still messed up.
             {
                 float x = hedgesMesh.vertices[i].x;
 
@@ -155,9 +151,9 @@ public class MazeMeshesGenerator : MonoBehaviour
                     x = hedgesMesh.vertices[i].z;
 
                 }
-                uvs[i] = new Vector2(x, hedgesMesh.vertices[i].y);
+                uvs[i] = new Vector2(x/tileAmount, hedgesMesh.vertices[i].y/tileAmount);
         
-            }*/
+            }
 
             hedgesMesh.RecalculateBounds();
 
