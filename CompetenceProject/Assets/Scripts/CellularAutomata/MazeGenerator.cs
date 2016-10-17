@@ -11,8 +11,13 @@ public class MazeGenerator : MonoBehaviour
     [Tooltip("How wide the passage should be.")]
     public int passageRadius = 5;
 
-    Room mainRoom;
-    Room lastRoom;
+    //the first room, last room, and the list of all rooms.
+    public Room mainRoom;
+    public Room lastRoom;
+    //the first room in this list is the first room.
+    //try to avoid it when placing enemies initially :)
+    //A Room has a list of all the tiles in the room.
+    public List<Room> roomsInMaze;
 
     public string seed;
     public bool useRandomSeed;
@@ -119,10 +124,8 @@ public class MazeGenerator : MonoBehaviour
 
         //Debug.DrawLine (CoordToWorldPoint (survivingRooms[0].tiles[0]), CoordToWorldPoint (survivingRooms[survivingRooms.Count-2].tiles[0]), Color.green, 100);
         ConnectClosestRooms(survivingRooms);
-        if (mainRoom == null)
-            Debug.Log("main room is null");
-        if (lastRoom == null)
-            Debug.Log("last room is null");
+
+        roomsInMaze = survivingRooms;
         Debug.DrawLine(CoordToWorldPoint(mainRoom.tiles[mainRoom.tiles.Count / 2]), CoordToWorldPoint(lastRoom.tiles[lastRoom.tiles.Count/2]), Color.green, 100);
     }
 
@@ -478,6 +481,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
+    //only checks in a range of 1.
    /* void WidenPassages(Coord gridTile)
     {
         bool drawCircle = false;
@@ -523,15 +527,18 @@ public class MazeGenerator : MonoBehaviour
             DrawCircle(gridTile, passageRadius);
     }*/
 
-    void WidenPassages(Coord gridTile, int r)
+    //this method checks for walls in a set range.
+    //a variable wallCount counts them, and
+    //only erases the walls, if there is more than two.
+    void WidenPassages(Coord gridTile, int radius)
     {
         int wallCount = 0;
         bool breakLoops = false;
-        for (int x = -r; x <= r; x++)
+        for (int x = -radius; x <= radius; x++)
         {
-            for (int y = -r; y <= r; y++)
+            for (int y = -radius; y <= radius; y++)
             {
-                if (x * x + y * y <= r * r)
+                if (x * x + y * y <= radius * radius)
                 {
                     int checkX = gridTile.tileX + x;
                     int checkY = gridTile.tileY + y;
@@ -551,8 +558,9 @@ public class MazeGenerator : MonoBehaviour
             break;
         }
         if (wallCount > 1)
-            DrawCircle(gridTile, r);
+            DrawCircle(gridTile, radius);
     }
+
 
     int GetSurroundingWallCount(int gridX, int gridY)
     {
@@ -577,94 +585,4 @@ public class MazeGenerator : MonoBehaviour
 
         return wallCount;
     }
-
-    struct Coord
-    {
-        public int tileX;
-        public int tileY;
-
-        public Coord(int x, int y)
-        {
-            tileX = x;
-            tileY = y;
-        }
-    }
-
-    class Room : IComparable<Room>
-    {
-        public List<Coord> tiles;
-        public List<Coord> edgeTiles;
-        public List<Room> connectedRooms;
-        public int roomSize;
-        public bool isAccessibleFromMainRoom;
-        public bool isMainRoom;
-
-        public Room()
-        {
-        }
-
-        public Room(List<Coord> roomTiles, int[,] map)
-        {
-            tiles = roomTiles;
-            roomSize = tiles.Count;
-            connectedRooms = new List<Room>();
-
-            edgeTiles = new List<Coord>();
-            foreach (Coord tile in tiles)
-            {
-                for (int x = tile.tileX - 1; x <= tile.tileX + 1; x++)
-                {
-                    for (int y = tile.tileY - 1; y <= tile.tileY + 1; y++)
-                    {
-                        if (x == tile.tileX || y == tile.tileY)
-                        {
-                            if (x > map.GetLength(0) - 1 || y > map.GetLength(1) - 1 || x<0 || y <0)
-                                Debug.Log("x,y: " + x + ", " + y + " and maplength: " + map.GetLength(0) + ", " + map.GetLength(1));
-                            if (x >= 0 && y >= 0 && x <= map.GetLength(0)-1 && y <= map.GetLength(1)-1 && map[x, y] == 1)
-                            {
-                                edgeTiles.Add(tile);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public void SetAccessibleFromMainRoom()
-        {
-            if (!isAccessibleFromMainRoom)
-            {
-                isAccessibleFromMainRoom = true;
-                foreach (Room connectedRoom in connectedRooms)
-                {
-                    connectedRoom.SetAccessibleFromMainRoom();
-                }
-            }
-        }
-
-        public static void ConnectRooms(Room roomA, Room roomB)
-        {
-            if (roomA.isAccessibleFromMainRoom)
-            {
-                roomB.SetAccessibleFromMainRoom();
-            }
-            else if (roomB.isAccessibleFromMainRoom)
-            {
-                roomA.SetAccessibleFromMainRoom();
-            }
-            roomA.connectedRooms.Add(roomB);
-            roomB.connectedRooms.Add(roomA);
-        }
-
-        public bool IsConnected(Room otherRoom)
-        {
-            return connectedRooms.Contains(otherRoom);
-        }
-
-        public int CompareTo(Room otherRoom)
-        {
-            return otherRoom.roomSize.CompareTo(roomSize);
-        }
-    }
-
 }
