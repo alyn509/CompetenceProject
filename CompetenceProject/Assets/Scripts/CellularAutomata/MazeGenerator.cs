@@ -13,6 +13,7 @@ public class MazeGenerator : MonoBehaviour
     public bool useRandomSeed;
     public Camera mainCamera;
 
+    [Tooltip("49 with a 200x200 area seems nice.")]
     [Range(0, 100)]
     public int randomFillPercent;
 
@@ -23,14 +24,6 @@ public class MazeGenerator : MonoBehaviour
         GenerateMap();
     }
 
-    /*void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            GenerateMap();
-        }
-    }*/
-
     void GenerateMap()
     {
         map = new int[width, height];
@@ -38,7 +31,11 @@ public class MazeGenerator : MonoBehaviour
 
         for (int i = 0; i < 5; i++)
         {
-            SmoothMap();
+            if (i != 4)
+            {
+                SmoothMap(4);
+            } else
+                SmoothMap(6);
         }
 
         ProcessMap();
@@ -63,6 +60,8 @@ public class MazeGenerator : MonoBehaviour
 
         MazeMeshesGenerator meshGen = GetComponent<MazeMeshesGenerator>();
         meshGen.GenerateMesh(borderedMap, 1);
+
+        //Attempted to fix z-fighting with this.
         mainCamera.nearClipPlane += 1f;
     }
 
@@ -199,8 +198,7 @@ public class MazeGenerator : MonoBehaviour
     void CreatePassage(Room roomA, Room roomB, Coord tileA, Coord tileB)
     {
         Room.ConnectRooms(roomA, roomB);
-        //Debug.DrawLine (CoordToWorldPoint (tileA), CoordToWorldPoint (tileB), Color.green, 100);
-
+        Debug.DrawLine (CoordToWorldPoint (tileA), CoordToWorldPoint (tileB), Color.green, 100);
         List<Coord> line = GetLine(tileA, tileB);
         foreach (Coord c in line)
         {
@@ -227,6 +225,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
+    /*returns a list of coordinates for each point in the line*/
     List<Coord> GetLine(Coord from, Coord to)
     {
         List<Coord> line = new List<Coord>();
@@ -234,16 +233,21 @@ public class MazeGenerator : MonoBehaviour
         int x = from.tileX;
         int y = from.tileY;
 
+        /*The equation for a line goes y = dx/dy + c*/
         int dx = to.tileX - from.tileX;
         int dy = to.tileY - from.tileY;
 
         bool inverted = false;
+        //which way we increment is decided by the sign of dx:
         int step = Math.Sign(dx);
         int gradientStep = Math.Sign(dy);
 
+        //
         int longest = Mathf.Abs(dx);
         int shortest = Mathf.Abs(dy);
 
+
+        //if this is the case, it is inverted, so we need to flip which variable is used for incremention.
         if (longest < shortest)
         {
             inverted = true;
@@ -254,6 +258,7 @@ public class MazeGenerator : MonoBehaviour
             gradientStep = Math.Sign(dx);
         }
 
+        //
         int gradientAccumulation = longest / 2;
         for (int i = 0; i < longest; i++)
         {
@@ -380,17 +385,17 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    void SmoothMap()
+    void SmoothMap(int cellDeath)
     {
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 int neighbourWallTiles = GetSurroundingWallCount(x, y);
-
-                if (neighbourWallTiles > 4)
+                
+                if (neighbourWallTiles > cellDeath)
                     map[x, y] = 1;
-                else if (neighbourWallTiles < 4)
+                else if (neighbourWallTiles < cellDeath)
                     map[x, y] = 0;
 
             }
@@ -432,7 +437,6 @@ public class MazeGenerator : MonoBehaviour
             tileY = y;
         }
     }
-
 
     class Room : IComparable<Room>
     {

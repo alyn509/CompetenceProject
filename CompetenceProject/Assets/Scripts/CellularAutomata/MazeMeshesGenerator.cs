@@ -8,6 +8,14 @@ public class MazeMeshesGenerator : MonoBehaviour
     public SquareGrid squareGrid;
     public MeshFilter hedges;
     public MeshFilter hedgeTops;
+    [Tooltip("Set the ground floor. This will be moved down so it matches hedgesHeight.")]
+    public GameObject ground;
+    [Tooltip("Drag the ground floor to this (it locates the mesh on its own).")]
+    public MeshFilter groundFilter;
+    [Tooltip("Set the height of the hedges.")]
+    public float hedgesHeight = 5f;
+    [Header("Show Texture on walls:")]
+    [Tooltip("Since the wall-texture isn't working optimally, you can choose to not apply it.")]
     public bool showHedgeTexture = false;
 
     List<Vector3> vertices;
@@ -19,28 +27,6 @@ public class MazeMeshesGenerator : MonoBehaviour
 
     public void GenerateMesh(int[,] map, float squareSize)
     {
-
-        /*  map = new int[map.GetLength(0), map.GetLength(1)];
-          for (int x = 0; x < map.GetLength(0); x++)
-          {
-              for (int y = 0; y < map.GetLength(1); y++)
-              {
-                  /*if (y % 3 == 0)
-                  {
-                      map[x, y] = 1;
-                  }
-                  else
-                      map[x, y] = 0;*/
-        /*  if (x < 10 && y < 10 && x > 0 && y > 0)
-          {
-              map[x, y] = 1;
-          }
-          else
-              map[x, y] = 0;
-      }
-  }*/
-
-
         triangleDictionary.Clear();
         outlines.Clear();
         checkedVertices.Clear();
@@ -97,7 +83,6 @@ public class MazeMeshesGenerator : MonoBehaviour
         List<Vector3> hedgesVertices = new List<Vector3>();
         List<int> hedgesTriangles = new List<int>();
         Mesh hedgesMesh = new Mesh();
-        float hedgesHeight = 5;
 
         foreach (List<int> outline in outlines)
         {
@@ -130,18 +115,10 @@ public class MazeMeshesGenerator : MonoBehaviour
         Vector2[] uvs = new Vector2[hedgesVertices.Count];
 
         if (showHedgeTexture)
-        {/*
-            for (int i = 0; i < hedgesVertices.Count; i++) //render order is messed up.
-            {
-                float percentX = Mathf.InverseLerp(-map.GetLength(0) / 2 * squareSize, map.GetLength(0) / 2 * squareSize, hedgesVertices[i].x) * tileAmount;
-                float percentY = Mathf.InverseLerp(-map.GetLength(1) / 2 * squareSize, map.GetLength(1) / 2 * squareSize, hedgesVertices[i].y) * tileAmount; //was z, not y
-                 
-                uvs[i] = new Vector2(percentX, percentY);
-                //is the issue when only the z-coordinate is changed between vertices on a wall?
-            }*/
-
-
-            for (int i = 0; i < hedgesMesh.vertices.Length; i++) //this fixes the stretching issue, but the patterns is repeated too much, and the render order is still messed up.
+        {
+            ////is the issue when only the z-coordinate is changed between vertices on a wall? 
+            //it might be z-fighting, but I think it's because of the order I applied the mesh in.
+            for (int i = 0; i < hedgesMesh.vertices.Length; i++) // the render order is still messed up.
             {
                 float x = hedgesMesh.vertices[i].x;
 
@@ -183,6 +160,35 @@ public class MazeMeshesGenerator : MonoBehaviour
         player.transform.position = pos;
 */
         //suggestion for placing player.
+/*
+        Mesh mesh = new Mesh();
+        groundFilter.mesh = mesh;
+        int xSize = 20;
+        int ySize = 20;
+        Vector3[] groundVertices = new Vector3[(xSize + 1) * (ySize + 1)];
+
+        for (int i = 0, y = 0; y <= ySize; y++)
+        {
+            for (int x = 0; x <= xSize; x++, i++)
+            {
+                groundVertices[i] = new Vector3(x, y);
+            }
+        }
+
+        mesh.vertices = groundVertices;
+
+        int[] triangles = new int[xSize * ySize * 6];
+		for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
+			for (int x = 0; x < xSize; x++, ti += 6, vi++) {
+                triangles[ti] = vi;
+                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
+                triangles[ti + 5] = vi + xSize + 2;
+			}
+		}
+        mesh.triangles = triangles;
+        */
+        ground.transform.position = new Vector3(ground.transform.position.x, ground.transform.position.y - hedgesHeight, ground.transform.position.z);
     }
 
     void TriangulateSquare(Square square)
