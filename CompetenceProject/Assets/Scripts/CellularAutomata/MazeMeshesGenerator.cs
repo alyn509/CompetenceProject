@@ -7,6 +7,8 @@ public class MazeMeshesGenerator : MonoBehaviour
 
     public SquareGrid squareGrid;
     public MeshFilter hedges;
+    public Texture hedgesTexture;
+    public int testInt;
     public MeshFilter hedgeTops;
     [Tooltip("Set the ground floor. This will be moved down so it matches hedgesHeight.")]
     public GameObject ground;
@@ -137,6 +139,8 @@ public class MazeMeshesGenerator : MonoBehaviour
             hedgesMesh.RecalculateNormals();
 
             hedgesMesh.uv = uvs;
+
+            //hedges.GetComponent<Renderer>().GetComponent<Material>().mainTexture = hedgesTexture;
         }
 
         MeshCollider hedgesCollider = gameObject.AddComponent<MeshCollider>();
