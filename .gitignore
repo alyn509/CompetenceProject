@@ -110,6 +110,7 @@ CompetenceProject/Temp/UnityTempFile-5be431c0ea5fab9448f88ee98a09c23d
 CompetenceProject/Temp/UnityTempFile-6407e23a4429a8f4f9800e0f5436fa5d
 CompetenceProject/Temp/UnityTempFile-b5b81d51fa9598846b5c0e7073996e8f
 CompetenceProject/Temp/UnityTempFile-c1ecc49b4b4da0d4c8d0f28eb0270b4b
+<<<<<<< HEAD
 >>>>>>> 3fda26d2d69f7607cd1b0e5d2b0d9f7fcf17160a
 CompetenceProject/Library/ShaderCache/1/1535b4821de02d7567e2ae30d79589e1.bin
 CompetenceProject/Library/ShaderCache/4/4eedc6eb1c7fcfbd7c1df846497a6ada.bin
@@ -253,3 +254,17 @@ CompetenceProject/Assets/Textures/18242247-green-leaves-wall-texture-with-for-ba
 CompetenceProject/Assets/Textures/Ground.mat
 CompetenceProject/Assets/Textures/Hedges 1.mat
 CompetenceProject/Temp/UnityTempFile-86fcfbe0698734f4b9011cdce660534c
+=======
+CompetenceProject/Library/metadata/18/18f99ed9b8f758244a61de648fb0c2b7
+CompetenceProject/Library/metadata/18/18f99ed9b8f758244a61de648fb0c2b7.info
+CompetenceProject/Library/metadata/59/594b90071757bd8408366cda73b888d9
+CompetenceProject/Library/metadata/59/594b90071757bd8408366cda73b888d9.info
+CompetenceProject/Library/metadata/85/85958ab7aba1d004081e489f7954d287
+CompetenceProject/Library/metadata/85/85958ab7aba1d004081e489f7954d287.info
+CompetenceProject/Library/metadata/8c/8cdcb7c2dba539243b9d474f0b066ef1
+CompetenceProject/Library/metadata/8c/8cdcb7c2dba539243b9d474f0b066ef1.info
+CompetenceProject/Library/metadata/91/913abdadca1cebf4f9b914058aebe2c2
+CompetenceProject/Library/metadata/91/913abdadca1cebf4f9b914058aebe2c2.info
+CompetenceProject/Library/metadata/d7/d749c614a38656a43a7f7f2f18f7ba9f
+CompetenceProject/Library/metadata/d7/d749c614a38656a43a7f7f2f18f7ba9f.info
+>>>>>>> ProcGenMaze
