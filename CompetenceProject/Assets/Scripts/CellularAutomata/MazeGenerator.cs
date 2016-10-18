@@ -30,9 +30,112 @@ public class MazeGenerator : MonoBehaviour
     [HideInInspector]
     public int[,] map;
 
+    List<Coord> listOfCoord = new List<Coord>();
+
     void Start()
     {
         GenerateMap();
+        foreach(Room room in roomsInMaze){
+            Coord dropTile = MakeDropArea(room, 3);
+            if (dropTile.tileX != 0){
+                listOfCoord.Add(dropTile);
+            }else{
+                Debug.Log("could not find droptile.");
+            }
+        }
+        for (int i = 0; i < listOfCoord.Count; i += 1)
+        {
+            if (listOfCoord.Count >= i + 1)
+            {
+                Debug.DrawLine(CoordToWorldPoint(listOfCoord[i]), CoordToWorldPoint(listOfCoord[i+1]), Color.red, 100);
+            }
+        }
+    }
+
+    //take into consideration that we are dropping enemies, the player,
+    // exits, and items... perhaps have a list of Coord tiles that are taken,
+    // and cross reference?
+    //then we choose areas in terms of priority (player, exit, item, enemy)
+    //note that the number of enemy drop points will wary.
+    // should the drop points also be the patrol points?
+    //create transfrom objects procedurally as necessary?
+
+    List<Coord> TakenSpaces = new List<Coord>();
+
+    //Find how many drop areas a room can have
+    //remember not to cram the room full.
+    //how many rooms does the standard map have? check.
+    public int CalculateNumberOfDropAreas(Room room, int sizeRadius){
+
+    }
+
+    //this function finds an area in a room where the 'item' can fit
+    //or makes room for it.
+    //maybe add a +1 to radius to leave room for passage.
+    public Coord MakeDropArea(Room room, int sizeRadius)
+    {
+
+        //find a good tile in radius range and draw a circle
+        Coord bestTile = FindBestArea(room, sizeRadius);
+        if (bestTile.tileX == 0)
+        {
+            foreach (Coord tile in room.tiles)
+            {
+                if (tile.tileX < width - sizeRadius - 2 && tile.tileX > 2 &&
+                    tile.tileY < height - sizeRadius - 2 && tile.tileY > 2)
+                {
+                    bestTile = tile;
+                    DrawCircle(bestTile, sizeRadius);
+                    break;
+                }
+            }
+        }
+        return bestTile;
+    }
+
+    public Coord FindBestArea(Room room, int radius)
+    {
+        // foreach tile in room, check the radius. 
+        // if none have an entirely empty radius, 
+        // MakeDropArea clears one.
+        bool breakLoops = false;
+        int wallCount = 0;
+        foreach (Coord tile in room.tiles)
+        {
+            breakLoops = false;
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    if (x * x + y * y <= radius * radius)
+                    {
+                        int checkX = tile.tileX + x;
+                        int checkY = tile.tileY + y;
+                        if (IsInMapRange(checkX, checkY))
+                        {
+                            if (map[checkX, checkY] == 1)
+                            {
+                                breakLoops = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            breakLoops = true;
+                            break;
+                        }
+                }
+                if (breakLoops)
+                    break;
+            }
+                if (!breakLoops)
+                {
+                    return tile;
+                }
+            }
+        }
+        Coord tileTest = new Coord(0, 0);
+        return tileTest;
     }
 
     void GenerateMap()
@@ -102,7 +205,7 @@ public class MazeGenerator : MonoBehaviour
 
         List<List<Coord>> roomRegions = GetRegions(0);
         int roomThresholdSize = 50;
-        List<Room> survivingRooms = new List<Room>();
+        List<Room> finalRooms = new List<Room>();
 
         foreach (List<Coord> roomRegion in roomRegions)
         {
@@ -115,18 +218,17 @@ public class MazeGenerator : MonoBehaviour
             }
             else
             {
-                survivingRooms.Add(new Room(roomRegion, map));
+                finalRooms.Add(new Room(roomRegion, map));
             }
         }
-        survivingRooms.Sort();
-        survivingRooms[0].isMainRoom = true;
-        mainRoom = survivingRooms[0];
-        survivingRooms[0].isAccessibleFromMainRoom = true;
+        finalRooms.Sort();
+        finalRooms[0].isMainRoom = true;
+        mainRoom = finalRooms[0];
+        finalRooms[0].isAccessibleFromMainRoom = true;
 
-        //Debug.DrawLine (CoordToWorldPoint (survivingRooms[0].tiles[0]), CoordToWorldPoint (survivingRooms[survivingRooms.Count-2].tiles[0]), Color.green, 100);
-        ConnectClosestRooms(survivingRooms);
+        ConnectClosestRooms(finalRooms);
 
-        roomsInMaze = survivingRooms;
+        roomsInMaze = finalRooms;
         Debug.DrawLine(CoordToWorldPoint(mainRoom.tiles[mainRoom.tiles.Count / 2]), CoordToWorldPoint(lastRoom.tiles[lastRoom.tiles.Count/2]), Color.green, 100);
     }
 
