@@ -85,6 +85,7 @@
 -define:UNITY_EDITOR_WIN
 -define:UNITY_TEAM_LICENSE
 Assets/Scripts/CellularAutomata/BasicMovement.cs
+Assets/Scripts/CellularAutomata/Coord.cs
 Assets/Scripts/CellularAutomata/MazeGenerator.cs
 Assets/Scripts/CellularAutomata/MazeMeshesGenerator.cs
 Assets/Scripts/CellularAutomata/Room.cs
