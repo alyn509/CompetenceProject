@@ -10,6 +10,17 @@ public class MazeGenerator : MonoBehaviour
     public int height;
     [Tooltip("How wide the passage should be.")]
     public int passageRadius = 5;
+    [Tooltip("How much of a room's tiles is allowed to be filled with objects/enemies, etc.")]
+    public float objectToRoomPercent = 0.6f;
+
+    public Vector3 playerStart; 
+    public int playerRadius = 5;
+    public Vector3 mazeExit;
+    public int exitRadius = 3;
+
+    [Tooltip("A list of drop-off points. Only one for all of them, for now.")]
+    [HideInInspector]
+    public List<Vector3> dropAreas = new List<Vector3>();
 
     //the first room, last room, and the list of all rooms.
     public Room mainRoom;
@@ -18,6 +29,8 @@ public class MazeGenerator : MonoBehaviour
     //try to avoid it when placing enemies initially :)
     //A Room has a list of all the tiles in the room.
     public List<Room> roomsInMaze;
+
+    List<Coord> TakenSpaces = new List<Coord>();
 
     public string seed;
     public bool useRandomSeed;
@@ -35,6 +48,19 @@ public class MazeGenerator : MonoBehaviour
     void Start()
     {
         GenerateMap();
+        //right now this finds (and fills) all possible spaces.
+        //add possibility of chosing a set number?
+        GenerateDropAreas(3);
+        dropAreas.Add(playerStart);
+        dropAreas.Add(mazeExit);
+        for (int i = 0; i < dropAreas.Count; i += 1)
+        {
+            if (dropAreas.Count-1 >= i + 1)
+            {
+                Debug.DrawLine(dropAreas[i], dropAreas[i+1], Color.red, 100);
+            }
+        }
+        /*
         foreach(Room room in roomsInMaze){
             Coord dropTile = MakeDropArea(room, 3);
             if (dropTile.tileX != 0){
@@ -49,7 +75,7 @@ public class MazeGenerator : MonoBehaviour
             {
                 Debug.DrawLine(CoordToWorldPoint(listOfCoord[i]), CoordToWorldPoint(listOfCoord[i+1]), Color.red, 100);
             }
-        }
+        }*/
     }
 
     //take into consideration that we are dropping enemies, the player,
@@ -60,15 +86,97 @@ public class MazeGenerator : MonoBehaviour
     // should the drop points also be the patrol points?
     //create transfrom objects procedurally as necessary?
 
-    List<Coord> TakenSpaces = new List<Coord>();
-
     //Find how many drop areas a room can have
     //remember not to cram the room full.
     //how many rooms does the standard map have? check.
+    //also, room has to have enough tiles to even be considered. sizeRadius +10?
     public int CalculateNumberOfDropAreas(Room room, int sizeRadius){
-
+        if (room.tiles.Count < sizeRadius * sizeRadius + 2)
+        {   //not enough room.
+            return 0;
+        }else {
+            //The number of drop-off areas.
+            int tileCount = 0;
+            foreach (Coord tile in room.tiles)
+            {
+                if (!TakenSpaces.Contains(tile))
+                {
+                    tileCount++; //how many untaken tiles are left?
+                }
+            }//take sizeRadius into account:
+            return (int)((tileCount * objectToRoomPercent)/(sizeRadius*sizeRadius));
+            
+        } 
     }
 
+    //'numberOfDrops' is set to 0/null, so that we have the option to fill all remaining spaces.
+    public void GenerateDropAreas(int sizeRadius, int numberOfDrops = 0)
+    {
+        Coord dropArea;
+        int drops = 0;
+        //find playerStart and mazeExit:
+        FindStartAndEndPos();
+        //find item/enemy dropoff area
+        foreach (Room room in roomsInMaze)
+        {
+            int areas = CalculateNumberOfDropAreas(room, sizeRadius);
+            if (areas == 0) //if there are none, skip.
+                continue;
+
+            for (int i = 0; i < areas; i++)
+            {
+                dropArea = MakeDropArea(room, sizeRadius);
+                drops++;
+                dropAreas.Add(CoordToWorldPoint(dropArea));
+                if (numberOfDrops != 0 && drops == numberOfDrops){
+                    return;
+                }
+            }
+        }
+    }
+
+    public void FindStartAndEndPos()
+    {
+        //find player drop off area
+        Coord bestCoord = FindBestArea(mainRoom, playerRadius);
+        if (bestCoord.tileX == 0)
+        {   //if I didn't find an area with enough space, make one and get the coordinates!
+            try
+            {
+                bestCoord = MakeDropArea(mainRoom, playerRadius);
+                playerStart = CoordToWorldPoint(bestCoord); 
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't get valid playerStart coordinates.");
+            }
+        }
+        else
+        {   //if a best area was found, find the coordinates
+            playerStart = CoordToWorldPoint(bestCoord); 
+        }
+
+        //find exit drop off area
+        bestCoord = FindBestArea(lastRoom, exitRadius);
+        if (bestCoord.tileX == 0)
+        {   //if I didn't find an area with enough space, make one and get the coordinates!
+            try
+            {
+                bestCoord = MakeDropArea(lastRoom, exitRadius);
+                mazeExit = CoordToWorldPoint(bestCoord);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't get valid mazeExit coordinates.");
+            }
+        }
+        else
+        {   //if a best area was found, find the coordinates
+            mazeExit = CoordToWorldPoint(bestCoord);
+        }
+    }
+
+    //don't allow enemies in room one initially?
     //this function finds an area in a room where the 'item' can fit
     //or makes room for it.
     //maybe add a +1 to radius to leave room for passage.
@@ -85,11 +193,16 @@ public class MazeGenerator : MonoBehaviour
                     tile.tileY < height - sizeRadius - 2 && tile.tileY > 2)
                 {
                     bestTile = tile;
-                    DrawCircle(bestTile, sizeRadius);
                     break;
+                }
+                else
+                {
+                    Debug.Log("Could find a drop-off place within map limits.");
                 }
             }
         }
+        if (bestTile.tileX != 0)
+            DrawCircle(bestTile, sizeRadius, true);
         return bestTile;
     }
 
@@ -113,7 +226,7 @@ public class MazeGenerator : MonoBehaviour
                         int checkY = tile.tileY + y;
                         if (IsInMapRange(checkX, checkY))
                         {
-                            if (map[checkX, checkY] == 1)
+                            if (map[checkX, checkY] == 1 && TakenSpaces.Contains(new Coord(checkX, checkY)))
                             {
                                 breakLoops = true;
                                 break;
@@ -377,7 +490,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    void DrawCircle(Coord gridTile, int radius)
+    void DrawCircle(Coord gridTile, int radius, bool savePoints = false)
     {
         for (int x = -radius; x <= radius; x++)
         {
@@ -390,6 +503,10 @@ public class MazeGenerator : MonoBehaviour
                     if (IsInMapRange(widenX, widenY))
                     {
                         map[widenX, widenY] = 0;
+                    }
+                    if (savePoints)
+                    {
+                        TakenSpaces.Add(new Coord(widenX, widenY));
                     }
                 }
             }
