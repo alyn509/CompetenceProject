@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+//The Room class contains all of the information a room needs.
+//It inherits from the Icomparable interface in order to be to compare room-sizes.
 public class Room : IComparable<Room>
 {
     public List<Coord> tiles;

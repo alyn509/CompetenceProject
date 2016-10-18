@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//a Coordinates class, for holding tile coordinates.
 public struct Coord 
 {
 

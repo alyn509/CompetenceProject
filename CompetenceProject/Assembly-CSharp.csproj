@@ -46,10 +46,15 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\CellularAutomata\BasicMovement.cs" />
+     <Compile Include="Assets\Scripts\CellularAutomata\ControlNode.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\Coord.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\MazeGenerator.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\MazeMeshesGenerator.cs" />
+     <Compile Include="Assets\Scripts\CellularAutomata\Node.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\Room.cs" />
+     <Compile Include="Assets\Scripts\CellularAutomata\Square.cs" />
+     <Compile Include="Assets\Scripts\CellularAutomata\SquareGrid.cs" />
+     <Compile Include="Assets\Scripts\CellularAutomata\Triangle.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

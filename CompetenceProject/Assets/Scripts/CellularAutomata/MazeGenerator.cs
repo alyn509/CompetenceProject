@@ -137,9 +137,9 @@ public class MazeGenerator : MonoBehaviour
         //in the second run, the rooms are forced to have a cohesive connection to the first room.
 
         //A list of rooms that aren't connected to the main room.
-        List<Room> roomListA = new List<Room>();
+        List<Room> unConnectedRooms = new List<Room>();
         //list of rooms that ARE connected to the main room.
-        List<Room> roomListB = new List<Room>();
+        List<Room> connectedRooms = new List<Room>();
 
         List<Room> roomOrderList = new List<Room>();
 
@@ -150,31 +150,31 @@ public class MazeGenerator : MonoBehaviour
             {
                 if (room.isAccessibleFromMainRoom)
                 {
-                    roomListB.Add(room);
+                    connectedRooms.Add(room);
                 }
                 else
                 {
-                    roomListA.Add(room);
+                    unConnectedRooms.Add(room);
                 }
             }
         }
         else
         {
-            roomListA = allRooms;
-            roomListB = allRooms;
+            unConnectedRooms = allRooms;
+            connectedRooms = allRooms;
         }
 
         //The best distance variable tells us which room is closest,
         //and easiest to connect to.
-        int bestDistance = 0;
-        Coord bestTileA = new Coord();
-        Coord bestTileB = new Coord();
-        Room bestRoomA = new Room();
-        Room bestRoomB = new Room();
+        int closestDistance = 0;
+        Coord closestUnconnectedTile = new Coord();
+        Coord closestConnectedTile = new Coord();
+        Room closestUnconnectedRoom = new Room();
+        Room closestConnectedRoom = new Room();
         bool possibleConnectionFound = false;
 
         //for each room A (in second run, without a connection to the first room)...
-        foreach (Room roomA in roomListA)
+        foreach (Room roomA in unConnectedRooms)
         {
             if (!forceAccessibilityFromMainRoom)
             {
@@ -187,7 +187,7 @@ public class MazeGenerator : MonoBehaviour
             }
 
             //check through all rooms B (that does have a connection to the first room, in the second run)...
-            foreach (Room roomB in roomListB)
+            foreach (Room roomB in connectedRooms)
             {
                 //If the two rooms are the same room, or are already connect, skip.
                 if (roomA == roomB || roomA.IsConnected(roomB))
@@ -202,34 +202,33 @@ public class MazeGenerator : MonoBehaviour
                     for (int tileIndexB = 0; tileIndexB < roomB.edgeTiles.Count; tileIndexB++)
                     {
                         //find the distance between the two...
-                        Coord tileA = roomA.edgeTiles[tileIndexA];
-                        Coord tileB = roomB.edgeTiles[tileIndexB];
-                        int distanceBetweenRooms = (int)(Mathf.Pow(tileA.tileX - tileB.tileX, 2) + Mathf.Pow(tileA.tileY - tileB.tileY, 2));
+                        Coord unconnectedTile = roomA.edgeTiles[tileIndexA];
+                        Coord connectedTile = roomB.edgeTiles[tileIndexB];
+                        int distanceBetweenRooms = (int)(Mathf.Pow(unconnectedTile.tileX - connectedTile.tileX, 2) + Mathf.Pow(unconnectedTile.tileY - connectedTile.tileY, 2));
 
                         //... and save the best one.
-                        if (distanceBetweenRooms < bestDistance || !possibleConnectionFound)
+                        if (distanceBetweenRooms < closestDistance || !possibleConnectionFound)
                         {
-                            bestDistance = distanceBetweenRooms;
+                            closestDistance = distanceBetweenRooms;
                             possibleConnectionFound = true;
-                            bestTileA = tileA;
-                            bestTileB = tileB;
-                            bestRoomA = roomA;
-                            bestRoomB = roomB;
+                            closestUnconnectedTile = unconnectedTile;
+                            closestConnectedTile = connectedTile;
+                            closestUnconnectedRoom = roomA;
+                            closestConnectedRoom = roomB;
                         }
                     }
                 }
             }
             //if a connection (or several) was found, the best distanced tiles are chosen to create a passage:
             if (possibleConnectionFound && !forceAccessibilityFromMainRoom)
-            {
-                CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+            {   //maybe place this in next part as well?
+                CreatePassage(closestUnconnectedRoom, closestConnectedRoom, closestUnconnectedTile, closestConnectedTile);
             }
         }
 
         //in the second run, this is called to ensure connection to a room that connects to the first room.
         if (possibleConnectionFound && forceAccessibilityFromMainRoom)
         {
-            CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
             ConnectClosestRooms(allRooms, true);
         }
 
