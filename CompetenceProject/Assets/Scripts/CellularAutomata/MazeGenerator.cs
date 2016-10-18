@@ -27,7 +27,8 @@ public class MazeGenerator : MonoBehaviour
     [Range(0, 100)]
     public int randomFillPercent;
 
-    int[,] map;
+    [HideInInspector]
+    public int[,] map;
 
     void Start()
     {
