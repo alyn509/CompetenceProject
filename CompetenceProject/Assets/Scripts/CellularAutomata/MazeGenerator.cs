@@ -54,10 +54,11 @@ public class MazeGenerator : MonoBehaviour
         //add possibility of chosing a set number?
         FindStartAndEndPos();
         dropAreas.Add(playerStart);
+        GameObject.FindGameObjectWithTag("Player").transform.position = playerStart;
         dropAreas.Add(mazeExit);
 
 
-        GenerateDropAreas(4, 100);
+        GenerateDropAreas(3, 100);
 
         /* for (int i = 0; i < dropAreas.Count; i += 1)
          {

@@ -66,6 +66,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Characters\Frogs\GUIScript.cs" />
+    <Compile Include="Assets\Characters\JellyFishGirl\Scripts\ChaScript.cs" />
+    <Compile Include="Assets\Characters\JellyFishGirl\Scripts\Move.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\CellularAutomata\BasicMovement.cs" />
     <Compile Include="Assets\Scripts\CellularAutomata\ControlNode.cs" />
@@ -80,6 +83,9 @@
     <Compile Include="Assets\Scripts\EnemyTest.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Characters\JellyFishGirl\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
