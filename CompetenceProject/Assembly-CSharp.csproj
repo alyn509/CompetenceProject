@@ -56,6 +56,9 @@
      <Compile Include="Assets\Scripts\CellularAutomata\Square.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\SquareGrid.cs" />
      <Compile Include="Assets\Scripts\CellularAutomata\Triangle.cs" />
+     <Compile Include="Assets\Scripts\EnemyTest.cs" />
+     <Compile Include="Assets\Scripts\GameState.cs" />
+     <Compile Include="Assets\Scripts\MusicManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

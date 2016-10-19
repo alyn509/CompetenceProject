@@ -10,6 +10,17 @@ public class MazeGenerator : MonoBehaviour
     public int height;
     [Tooltip("How wide the passage should be.")]
     public int passageRadius = 5;
+    [Tooltip("How much of a room's tiles is allowed to be filled with objects/enemies, etc.")]
+    public float objectToRoomPercent = 0.6f;
+
+    public Vector3 playerStart; 
+    public int playerRadius = 5;
+    public Vector3 mazeExit;
+    public int exitRadius = 3;
+
+    [Tooltip("A list of drop-off points. Only one for all of them, for now.")]
+    [HideInInspector]
+    public List<Vector3> dropAreas = new List<Vector3>();
 
     //the first room, last room, and the list of all rooms.
     public Room mainRoom;
@@ -18,6 +29,8 @@ public class MazeGenerator : MonoBehaviour
     //try to avoid it when placing enemies initially :)
     //A Room has a list of all the tiles in the room.
     public List<Room> roomsInMaze;
+
+    HashSet<Coord> TakenSpaces = new HashSet<Coord>();
 
     public string seed;
     public bool useRandomSeed;
@@ -30,9 +43,313 @@ public class MazeGenerator : MonoBehaviour
     [HideInInspector]
     public int[,] map;
 
+    List<Coord> listOfCoord = new List<Coord>();
+
+    public GameObject drop;
+
     void Start()
     {
         GenerateMap();
+        //right now this finds (and fills) all possible spaces.
+        //add possibility of chosing a set number?
+        FindStartAndEndPos();
+        dropAreas.Add(playerStart);
+        GameObject.FindGameObjectWithTag("Player").transform.position = playerStart;
+        dropAreas.Add(mazeExit);
+
+
+        GenerateDropAreas(3, 100);
+
+        /* for (int i = 0; i < dropAreas.Count; i += 1)
+         {
+             if (dropAreas.Count-1 >= i + 1)
+             {
+                 Debug.DrawLine(dropAreas[i], dropAreas[i+1], Color.red, 100);
+             }
+         }*/
+        int test = 0;
+       foreach (Coord tile in TakenSpaces)
+        {
+            GameObject newObj = Instantiate(drop) as GameObject;
+            newObj.transform.position = CoordToWorldPoint(tile);
+           /* if (test < 5)
+                newObj.GetComponent<Renderer>().material.color = Color.blue;
+            else if ( test < 11)
+                newObj.GetComponent<Renderer>().material.color = Color.yellow;
+            test++;*/
+        }
+
+        GameObject newPoint = Instantiate(drop) as GameObject;
+        newPoint.transform.position = playerStart + new Vector3 (0, 2, 0);
+        newPoint.GetComponent<Renderer>().material.color = Color.yellow;
+
+        GameObject newnewPoint = Instantiate(drop) as GameObject;
+        newnewPoint.transform.position = mazeExit + new Vector3(0, 2, 0);
+        newnewPoint.GetComponent<Renderer>().material.color = Color.blue;
+             
+
+     /*foreach (Vector3 vec in dropAreas)
+     {
+         GameObject newObj = Instantiate(drop) as GameObject;
+         newObj.transform.position = vec;
+     }*/
+        Debug.Log("Number of rooms: " + roomsInMaze.Count + "and dropAreas: " + dropAreas.Count + " and taken tiles: " + TakenSpaces.Count + " and takenspaces found times: " + takenSpaces + " and room 0 checked: " + roomOchecked + " times.");
+    }
+
+    //take into consideration that we are dropping enemies, the player,
+    // exits, and items... perhaps have a list of Coord tiles that are taken,
+    // and cross reference?
+    //then we choose areas in terms of priority (player, exit, item, enemy)
+    //note that the number of enemy drop points will wary.
+    // should the drop points also be the patrol points?
+    //create transfrom objects procedurally as necessary?
+
+    //Find how many drop areas a room can have
+    //remember not to cram the room full.
+    //how many rooms does the standard map have? check.
+    //also, room has to have enough tiles to even be considered. sizeRadius +10?
+    public int CalculateNumberOfDropAreas(Room room, int sizeRadius){
+        if (room.tiles.Count < sizeRadius * sizeRadius + 2)
+        {   //not enough room.
+            return 0;
+        }else {
+            //The number of drop-off areas.
+            int tileCount = 0;
+            foreach (Coord tile in room.tiles)
+            {
+                if (!TakenSpaces.Contains(tile))
+                {
+                    tileCount++; //how many untaken tiles are left?
+                }
+            }//take sizeRadius into account:
+            return (int)((tileCount * objectToRoomPercent)/(sizeRadius*sizeRadius));
+        } 
+    }
+    int roomOchecked = 0;
+    //'numberOfDrops' is set to 0/null by default, which indicates that all possible spaces should be filled.
+    public void GenerateDropAreas(int sizeRadius, int numberOfDrops = 0)
+    {
+        Coord dropArea;
+        int drops = 0;
+
+        //find item/enemy dropoff area
+        if (numberOfDrops > 0)
+        {
+            int tries = 0; //just to keep it from going forever.
+            for (int i = 0; i < numberOfDrops; i++)
+            {
+                Room room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count) ];
+                if (room == roomsInMaze[0])
+                    roomOchecked++;
+                int areas = CalculateNumberOfDropAreas(room, sizeRadius);
+                while (areas == 0 && tries < roomsInMaze.Count)
+                { //if there are none, skip.
+                    room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count)];
+                    areas = CalculateNumberOfDropAreas(room, sizeRadius);
+                    tries++;
+                }
+                if (tries >= roomsInMaze.Count)
+                {
+                    Debug.Log("Couldn't find a room with enough space percentage.");
+                    break;
+                }
+                else
+                    tries = 0;
+
+                
+                dropArea = MakeDropArea(room, sizeRadius);
+                List<Room> checkRooms = new List<Room>();
+                while (dropArea.tileX == 0 && tries < roomsInMaze.Count-1)
+                {
+                    if (!checkRooms.Contains(room)) 
+                        checkRooms.Add(room);
+                    while (checkRooms.Count < roomsInMaze.Count - 1 && checkRooms.Contains(room))
+                    {
+                        room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count)];
+                    }
+                    dropArea = MakeDropArea(room, sizeRadius);
+                    tries++;
+                }
+
+                //assuming we have a good tile, save it.
+                if (dropArea.tileX != 0)
+                {
+                    drops++;
+                    dropAreas.Add(CoordToWorldPoint(dropArea));
+                }
+                else // otherwise, stop.
+                {
+                    Debug.Log("Couldn't create drop area " + (i + 1) + " of " + numberOfDrops + ". Continueing to next room.");
+                    break; //might as well stop completely.
+                }
+
+            }
+
+        }
+        else
+        {
+            foreach (Room room in roomsInMaze)
+            {
+                int areas = CalculateNumberOfDropAreas(room, sizeRadius);
+                if (areas == 0) //if there are none, skip.
+                    continue;
+
+                for (int i = 0; i < areas; i++)
+                {
+                    dropArea = MakeDropArea(room, sizeRadius);
+                    if (dropArea.tileX != 0)
+                    {
+                        drops++;
+                        dropAreas.Add(CoordToWorldPoint(dropArea));
+                    }
+                    else
+                    {
+                        Debug.Log("Couldn't create drop area " + (i + 1) + " of " + areas + ". Continueing to next room.");
+                        break;
+                    }
+
+
+
+                    //if we have the desired number of drops, return.
+                    if (numberOfDrops != 0 && drops == numberOfDrops)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public void FindStartAndEndPos()
+    {
+        //find player drop off area
+        Coord bestCoord = FindBestArea(mainRoom, playerRadius);
+        if (bestCoord.tileX == 0)
+        {   //if I didn't find an area with enough space, make one and get the coordinates!
+            try
+            {
+                bestCoord = MakeDropArea(mainRoom, playerRadius, true);
+                playerStart = CoordToWorldPoint(bestCoord); 
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't get valid playerStart coordinates.");
+            }
+        }
+        else
+        {   //if a best area was found, find the coordinates
+            playerStart = CoordToWorldPoint(bestCoord); 
+        }
+
+        //find exit drop off area
+        bestCoord = FindBestArea(lastRoom, exitRadius);
+        if (bestCoord.tileX == 0)
+        {   //if I didn't find an area with enough space, make one and get the coordinates!
+            try
+            {
+                bestCoord = MakeDropArea(lastRoom, exitRadius, true);
+                mazeExit = CoordToWorldPoint(bestCoord);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't get valid mazeExit coordinates.");
+            }
+        }
+        else
+        {   //if a best area was found, find the coordinates
+            mazeExit = CoordToWorldPoint(bestCoord);
+        }
+    }
+
+    //this function finds an area in a room where the 'item' can fit
+    //or makes room for it.
+    //maybe add a +1 to radius to leave room for passage.
+    public Coord MakeDropArea(Room room, int sizeRadius, bool playerOrExit = false)
+    {
+        //find a good tile in radius range and draw a circle
+        Coord bestTile = FindBestArea(room, sizeRadius);
+        if (bestTile.tileX == 0 && playerOrExit)
+        {
+            foreach (Coord tile in room.tiles) //in emergencies, find the first, the best.
+            {
+                if (tile.tileX < width - sizeRadius - 2 && tile.tileX > 2 &&
+                    tile.tileY < height - sizeRadius - 2 && tile.tileY > 2)
+                {
+                    bestTile = tile;
+                    break;
+                }
+                else
+                {
+                    Debug.Log("Couldn't find a drop-off place within map limits. Last checked Tile: " + bestTile.tileX+ ", " + bestTile.tileY);
+                }
+            }
+        }
+        if (bestTile.tileX != 0)
+        DrawCircle(bestTile, sizeRadius, true);
+        return bestTile;
+    }
+
+    int takenSpaces = 0;
+
+    public Coord FindBestArea(Room room, int radius)
+    {
+        // foreach tile in room, check the radius. 
+        // if none have an entirely empty radius, 
+        // MakeDropArea clears one.
+        bool breakLoops = false;
+		int tries = 0;
+        HashSet<Coord> checkedSpaces = new HashSet<Coord>();
+        //foreach (Coord tile in room.tiles)
+        int roomTiles = room.tiles.Count;
+        for (int i = 0; i < room.tiles.Count; i++ )
+        {
+            Coord tile = room.tiles[UnityEngine.Random.Range(0, roomTiles - 1)];
+
+			while (checkedSpaces.Contains(tile) && tries < roomTiles - 1)
+            {
+                tile = room.tiles[UnityEngine.Random.Range(0, roomTiles - 1)];
+				tries++;
+            }
+			if (tries >= roomTiles - 2) {
+                break;
+			}
+            if (!checkedSpaces.Contains(tile))
+                checkedSpaces.Add(tile);
+
+            breakLoops = false;
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int y = -radius; y <= radius; y++)
+                {
+                    if (x * x + y * y <= radius * radius)
+                    {
+                        int checkX = tile.tileX + x;
+                        int checkY = tile.tileY + y;
+                        if (IsInMapRange(checkX, checkY)) // if it's on the map...
+                        {
+                            if (map[checkX, checkY] == 1 || TakenSpaces.Contains(new Coord(checkX, checkY)))
+                            {// ... and it's a wall, or taken, break the loop and go to another tile!
+                                breakLoops = true;
+                                break;
+                            }
+                        }
+                        else
+                        {   // if not on map, breakx2 and go to new tile!
+                            breakLoops = true;
+                            break;
+                        }
+                    }
+                    if (breakLoops)
+                        break;
+                }
+            }
+            if (!breakLoops)
+            {
+                return tile;
+            }
+        }
+        Coord tileTest = new Coord(0, 0);
+        return tileTest;
     }
 
     void GenerateMap()
@@ -102,7 +419,7 @@ public class MazeGenerator : MonoBehaviour
 
         List<List<Coord>> roomRegions = GetRegions(0);
         int roomThresholdSize = 50;
-        List<Room> survivingRooms = new List<Room>();
+        List<Room> finalRooms = new List<Room>();
 
         foreach (List<Coord> roomRegion in roomRegions)
         {
@@ -115,18 +432,17 @@ public class MazeGenerator : MonoBehaviour
             }
             else
             {
-                survivingRooms.Add(new Room(roomRegion, map));
+                finalRooms.Add(new Room(roomRegion, map));
             }
         }
-        survivingRooms.Sort();
-        survivingRooms[0].isMainRoom = true;
-        mainRoom = survivingRooms[0];
-        survivingRooms[0].isAccessibleFromMainRoom = true;
+        finalRooms.Sort();
+        finalRooms[0].isMainRoom = true;
+        mainRoom = finalRooms[0];
+        finalRooms[0].isAccessibleFromMainRoom = true;
 
-        //Debug.DrawLine (CoordToWorldPoint (survivingRooms[0].tiles[0]), CoordToWorldPoint (survivingRooms[survivingRooms.Count-2].tiles[0]), Color.green, 100);
-        ConnectClosestRooms(survivingRooms);
+        ConnectClosestRooms(finalRooms);
 
-        roomsInMaze = survivingRooms;
+        roomsInMaze = finalRooms;
         Debug.DrawLine(CoordToWorldPoint(mainRoom.tiles[mainRoom.tiles.Count / 2]), CoordToWorldPoint(lastRoom.tiles[lastRoom.tiles.Count/2]), Color.green, 100);
     }
 
@@ -275,7 +591,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    void DrawCircle(Coord gridTile, int radius)
+    void DrawCircle(Coord gridTile, int radius, bool savePoints = false)
     {
         for (int x = -radius; x <= radius; x++)
         {
@@ -288,6 +604,14 @@ public class MazeGenerator : MonoBehaviour
                     if (IsInMapRange(widenX, widenY))
                     {
                         map[widenX, widenY] = 0;
+                    }
+                    if (savePoints)
+                    {
+                        if (TakenSpaces.Contains(new Coord(widenX, widenY)))
+                        {
+                            Debug.Log("FOUND A DROPAREA IN TAKENSPACES!");
+                        }
+                        TakenSpaces.Add(new Coord(widenX, widenY));   
                     }
                 }
             }
