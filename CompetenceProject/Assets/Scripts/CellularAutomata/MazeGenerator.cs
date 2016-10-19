@@ -56,28 +56,43 @@ public class MazeGenerator : MonoBehaviour
         dropAreas.Add(playerStart);
         dropAreas.Add(mazeExit);
 
-        GenerateDropAreas(3, 100);
-        
-       /* for (int i = 0; i < dropAreas.Count; i += 1)
-        {
-            if (dropAreas.Count-1 >= i + 1)
-            {
-                Debug.DrawLine(dropAreas[i], dropAreas[i+1], Color.red, 100);
-            }
-        }*/
 
-       /*foreach (Coord tile in TakenSpaces)
+        GenerateDropAreas(4, 100);
+
+        /* for (int i = 0; i < dropAreas.Count; i += 1)
+         {
+             if (dropAreas.Count-1 >= i + 1)
+             {
+                 Debug.DrawLine(dropAreas[i], dropAreas[i+1], Color.red, 100);
+             }
+         }*/
+        int test = 0;
+       foreach (Coord tile in TakenSpaces)
         {
             GameObject newObj = Instantiate(drop) as GameObject;
             newObj.transform.position = CoordToWorldPoint(tile);
-        }*/
-
-        foreach (Vector3 vec in dropAreas)
-        {
-            GameObject newObj = Instantiate(drop) as GameObject;
-            newObj.transform.position = vec;
+           /* if (test < 5)
+                newObj.GetComponent<Renderer>().material.color = Color.blue;
+            else if ( test < 11)
+                newObj.GetComponent<Renderer>().material.color = Color.yellow;
+            test++;*/
         }
-        Debug.Log("Number of rooms: " + roomsInMaze.Count + " and taken tiles: " + TakenSpaces.Count + " and takenspaces found times: " + takenSpaces);
+
+        GameObject newPoint = Instantiate(drop) as GameObject;
+        newPoint.transform.position = playerStart + new Vector3 (0, 2, 0);
+        newPoint.GetComponent<Renderer>().material.color = Color.yellow;
+
+        GameObject newnewPoint = Instantiate(drop) as GameObject;
+        newnewPoint.transform.position = mazeExit + new Vector3(0, 2, 0);
+        newnewPoint.GetComponent<Renderer>().material.color = Color.blue;
+             
+
+     /*foreach (Vector3 vec in dropAreas)
+     {
+         GameObject newObj = Instantiate(drop) as GameObject;
+         newObj.transform.position = vec;
+     }*/
+        Debug.Log("Number of rooms: " + roomsInMaze.Count + "and dropAreas: " + dropAreas.Count + " and taken tiles: " + TakenSpaces.Count + " and takenspaces found times: " + takenSpaces + " and room 0 checked: " + roomOchecked + " times.");
     }
 
     //take into consideration that we are dropping enemies, the player,
@@ -109,7 +124,7 @@ public class MazeGenerator : MonoBehaviour
             return (int)((tileCount * objectToRoomPercent)/(sizeRadius*sizeRadius));
         } 
     }
-
+    int roomOchecked = 0;
     //'numberOfDrops' is set to 0/null by default, which indicates that all possible spaces should be filled.
     public void GenerateDropAreas(int sizeRadius, int numberOfDrops = 0)
     {
@@ -122,20 +137,35 @@ public class MazeGenerator : MonoBehaviour
             int tries = 0; //just to keep it from going forever.
             for (int i = 0; i < numberOfDrops; i++)
             {
-                Room room = roomsInMaze[ UnityEngine.Random.Range(0, roomsInMaze.Count-1) ];
-
+                Room room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count) ];
+                if (room == roomsInMaze[0])
+                    roomOchecked++;
                 int areas = CalculateNumberOfDropAreas(room, sizeRadius);
-                if (areas == 0)
+                while (areas == 0 && tries < roomsInMaze.Count)
                 { //if there are none, skip.
-                    room = roomsInMaze[UnityEngine.Random.Range(0, roomsInMaze.Count - 1)];
+                    room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count)];
+                    areas = CalculateNumberOfDropAreas(room, sizeRadius);
                     tries++;
                 }
+                if (tries >= roomsInMaze.Count)
+                {
+                    Debug.Log("Couldn't find a room with enough space percentage.");
+                    break;
+                }
+                else
+                    tries = 0;
 
                 
                 dropArea = MakeDropArea(room, sizeRadius);
-                while (dropArea.tileX == 0 && tries < 10)
+                List<Room> checkRooms = new List<Room>();
+                while (dropArea.tileX == 0 && tries < roomsInMaze.Count-1)
                 {
-                    room = roomsInMaze[UnityEngine.Random.Range(0, roomsInMaze.Count - 1)];
+                    if (!checkRooms.Contains(room)) 
+                        checkRooms.Add(room);
+                    while (checkRooms.Count < roomsInMaze.Count - 1 && checkRooms.Contains(room))
+                    {
+                        room = roomsInMaze[(int)UnityEngine.Random.Range(-0.4f, roomsInMaze.Count)];
+                    }
                     dropArea = MakeDropArea(room, sizeRadius);
                     tries++;
                 }
@@ -148,7 +178,7 @@ public class MazeGenerator : MonoBehaviour
                 }
                 else // otherwise, stop.
                 {
-                    Debug.Log("Couldn't create drop area " + (i + 1) + " of " + areas + ". Continueing to next room.");
+                    Debug.Log("Couldn't create drop area " + (i + 1) + " of " + numberOfDrops + ". Continueing to next room.");
                     break; //might as well stop completely.
                 }
 
@@ -197,7 +227,7 @@ public class MazeGenerator : MonoBehaviour
         {   //if I didn't find an area with enough space, make one and get the coordinates!
             try
             {
-                bestCoord = MakeDropArea(mainRoom, playerRadius);
+                bestCoord = MakeDropArea(mainRoom, playerRadius, true);
                 playerStart = CoordToWorldPoint(bestCoord); 
             }
             catch (Exception e)
@@ -216,7 +246,7 @@ public class MazeGenerator : MonoBehaviour
         {   //if I didn't find an area with enough space, make one and get the coordinates!
             try
             {
-                bestCoord = MakeDropArea(lastRoom, exitRadius);
+                bestCoord = MakeDropArea(lastRoom, exitRadius, true);
                 mazeExit = CoordToWorldPoint(bestCoord);
             }
             catch (Exception e)
@@ -233,11 +263,11 @@ public class MazeGenerator : MonoBehaviour
     //this function finds an area in a room where the 'item' can fit
     //or makes room for it.
     //maybe add a +1 to radius to leave room for passage.
-    public Coord MakeDropArea(Room room, int sizeRadius)
+    public Coord MakeDropArea(Room room, int sizeRadius, bool playerOrExit = false)
     {
         //find a good tile in radius range and draw a circle
         Coord bestTile = FindBestArea(room, sizeRadius);
-        if (bestTile.tileX == 0)
+        if (bestTile.tileX == 0 && playerOrExit)
         {
             foreach (Coord tile in room.tiles) //in emergencies, find the first, the best.
             {
@@ -273,15 +303,17 @@ public class MazeGenerator : MonoBehaviour
         for (int i = 0; i < room.tiles.Count; i++ )
         {
             Coord tile = room.tiles[UnityEngine.Random.Range(0, roomTiles - 1)];
-			while (checkedSpaces.Contains(tile) && tries == 20)
+
+			while (checkedSpaces.Contains(tile) && tries < roomTiles - 1)
             {
                 tile = room.tiles[UnityEngine.Random.Range(0, roomTiles - 1)];
 				tries++;
             }
-			if (tries >= 20) {
+			if (tries >= roomTiles - 2) {
                 break;
 			}
-            checkedSpaces.Add(tile);
+            if (!checkedSpaces.Contains(tile))
+                checkedSpaces.Add(tile);
 
             breakLoops = false;
             for (int x = -radius; x <= radius; x++)

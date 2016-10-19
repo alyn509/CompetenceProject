@@ -84,6 +84,7 @@
 -define:UNITY_EDITOR_64
 -define:UNITY_EDITOR_WIN
 -define:UNITY_TEAM_LICENSE
+-define:ENABLE_VSTU
 Assets/Scripts/CameraController.cs
 Assets/Scripts/CellularAutomata/BasicMovement.cs
 Assets/Scripts/CellularAutomata/ControlNode.cs
