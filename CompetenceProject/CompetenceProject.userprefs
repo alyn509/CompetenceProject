@@ -1,0 +1,19 @@
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CellularAutomata\MazeGenerator.cs">
+    <Files>
+      <File FileName="Assets\Scripts\CellularAutomata\MazeGenerator.cs" Line="283" Column="5" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="52" column="1" />
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="75" column="1" />
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="120" column="1" />
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="140" column="1" />
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="152" column="1" />
+      <Breakpoint file="C:\Users\mia_000\Documents\CompetenceProject\CompetenceProject\Assets\Scripts\CellularAutomata\MazeGenerator.cs" line="59" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
