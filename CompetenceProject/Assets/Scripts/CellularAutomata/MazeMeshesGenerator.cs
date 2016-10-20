@@ -65,6 +65,14 @@ public class MazeMeshesGenerator : MonoBehaviour
         }
         mesh.uv = uvs;
 
+        MeshCollider hedgetopCollider = gameObject.AddComponent<MeshCollider>();
+        hedgetopCollider = GameObject.Find("Hedges").AddComponent<MeshCollider>();
+
+        GameObject hedgetops = GameObject.Find("HedgeTops");
+
+        hedgetops.GetComponent<NavMeshObstacle>().carving = true;
+        hedgetops.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+
         CreateHedgesMesh(map, squareSize);
 
         hedges.gameObject.GetComponent<NavMeshObstacle>().carving = true;
@@ -72,6 +80,9 @@ public class MazeMeshesGenerator : MonoBehaviour
 
         hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carving = true;
         hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+
+        this.gameObject.GetComponent<NavMeshObstacle>().carving = true;
+        this.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
     }
 
     void CreateHedgesMesh(int[,] map, float squareSize)
@@ -155,9 +166,14 @@ public class MazeMeshesGenerator : MonoBehaviour
         }
 
         MeshCollider hedgesCollider = gameObject.AddComponent<MeshCollider>();
-        
+        hedgesCollider = GameObject.Find("Hedges").AddComponent<MeshCollider>();
+
         //MeshCollider hedgesCollider = gameObject.GetComponent<MeshCollider>();
         hedgesCollider.sharedMesh = hedgesMesh;
+        GameObject hedge = GameObject.Find("Hedges");
+
+        hedge.GetComponent<NavMeshObstacle>().carving = true;
+        hedge.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
 
 
         gameObject.GetComponent<NavMeshObstacle>().carving = true;
