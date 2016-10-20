@@ -66,23 +66,28 @@ public class MazeMeshesGenerator : MonoBehaviour
         mesh.uv = uvs;
 
         MeshCollider hedgetopCollider = gameObject.AddComponent<MeshCollider>();
-        hedgetopCollider = GameObject.Find("Hedges").AddComponent<MeshCollider>();
+        hedgetopCollider = GameObject.Find("HedgeTops").AddComponent<MeshCollider>();
 
-        GameObject hedgetops = GameObject.Find("HedgeTops");
+        /*GameObject hedgetops = GameObject.Find("HedgeTops");
 
+        hedgetops.AddComponent<NavMeshObstacle>();
         hedgetops.GetComponent<NavMeshObstacle>().carving = true;
-        hedgetops.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+        hedgetops.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;*/
+
+
 
         CreateHedgesMesh(map, squareSize);
 
-        hedges.gameObject.GetComponent<NavMeshObstacle>().carving = true;
-        hedges.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
-
-        hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carving = true;
-        hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
-
+        /*this.gameObject.AddComponent<NavMeshObstacle>();
         this.gameObject.GetComponent<NavMeshObstacle>().carving = true;
-        this.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+        this.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;*/
+
+        GameObject hedge = GameObject.Find("Hedges");
+        hedge.AddComponent<NavMeshObstacle>();
+
+        hedge.GetComponent<NavMeshObstacle>().shape = NavMeshObstacleShape.Capsule;
+        hedge.GetComponent<NavMeshObstacle>().carving = true;
+        hedge.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
     }
 
     void CreateHedgesMesh(int[,] map, float squareSize)
@@ -172,7 +177,7 @@ public class MazeMeshesGenerator : MonoBehaviour
         hedgesCollider.sharedMesh = hedgesMesh;
         GameObject hedge = GameObject.Find("Hedges");
 
-        hedge.GetComponent<NavMeshObstacle>().carving = true;
+        /*hedge.GetComponent<NavMeshObstacle>().carving = true;
         hedge.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
 
 
@@ -182,7 +187,7 @@ public class MazeMeshesGenerator : MonoBehaviour
         GameObject testing = Instantiate(testPlane) as GameObject;
 
         testing.GetComponent<NavMeshObstacle>().carving = true;
-        testing.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+        testing.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;*/
 
 
         /*var dropZone = new List<Coord>();
