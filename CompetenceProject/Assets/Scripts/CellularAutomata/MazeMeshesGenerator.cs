@@ -27,6 +27,8 @@ public class MazeMeshesGenerator : MonoBehaviour
     List<List<int>> outlines = new List<List<int>>();
     HashSet<int> checkedVertices = new HashSet<int>();
 
+    public GameObject testPlane;
+
     public void GenerateMesh(int[,] map, float squareSize)
     {
         triangleDictionary.Clear();
@@ -64,27 +66,36 @@ public class MazeMeshesGenerator : MonoBehaviour
         mesh.uv = uvs;
 
         CreateHedgesMesh(map, squareSize);
+
+        hedges.gameObject.GetComponent<NavMeshObstacle>().carving = true;
+        hedges.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+
+        hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carving = true;
+        hedgeTops.gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
     }
 
     void CreateHedgesMesh(int[,] map, float squareSize)
     {
 
-        MeshCollider[] currentColliders3D = hedges.gameObject.GetComponents<MeshCollider>();
+        /*MeshCollider[] currentColliders3D = hedges.gameObject.GetComponents<MeshCollider>();
 
         for (int i = 0; i < currentColliders3D.Length; i++)
         {
             Destroy(currentColliders3D[i]);
 
-        }
+        }*/
 
         MeshCollider currentCollider = GetComponent<MeshCollider>();
         Destroy(currentCollider);
+
+        //hedges.gameObject.GetComponents<MeshCollider>()
 
         CalculateMeshOutlines();
 
         List<Vector3> hedgesVertices = new List<Vector3>();
         List<int> hedgesTriangles = new List<int>();
         Mesh hedgesMesh = new Mesh();
+        hedgesMesh.name = "hedgesMesh";
 
         foreach (List<int> outline in outlines)
         {
@@ -144,8 +155,19 @@ public class MazeMeshesGenerator : MonoBehaviour
         }
 
         MeshCollider hedgesCollider = gameObject.AddComponent<MeshCollider>();
+        
         //MeshCollider hedgesCollider = gameObject.GetComponent<MeshCollider>();
         hedgesCollider.sharedMesh = hedgesMesh;
+
+
+        gameObject.GetComponent<NavMeshObstacle>().carving = true;
+        gameObject.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+
+        GameObject testing = Instantiate(testPlane) as GameObject;
+
+        testing.GetComponent<NavMeshObstacle>().carving = true;
+        testing.GetComponent<NavMeshObstacle>().carveOnlyStationary = true;
+
 
         /*var dropZone = new List<Coord>();
 
@@ -164,35 +186,35 @@ public class MazeMeshesGenerator : MonoBehaviour
         player.transform.position = pos;
 */
         //suggestion for placing player.
-/*
-        Mesh mesh = new Mesh();
-        groundFilter.mesh = mesh;
-        int xSize = 20;
-        int ySize = 20;
-        Vector3[] groundVertices = new Vector3[(xSize + 1) * (ySize + 1)];
+        /*
+                Mesh mesh = new Mesh();
+                groundFilter.mesh = mesh;
+                int xSize = 20;
+                int ySize = 20;
+                Vector3[] groundVertices = new Vector3[(xSize + 1) * (ySize + 1)];
 
-        for (int i = 0, y = 0; y <= ySize; y++)
-        {
-            for (int x = 0; x <= xSize; x++, i++)
-            {
-                groundVertices[i] = new Vector3(x, y);
-            }
-        }
+                for (int i = 0, y = 0; y <= ySize; y++)
+                {
+                    for (int x = 0; x <= xSize; x++, i++)
+                    {
+                        groundVertices[i] = new Vector3(x, y);
+                    }
+                }
 
-        mesh.vertices = groundVertices;
+                mesh.vertices = groundVertices;
 
-        int[] triangles = new int[xSize * ySize * 6];
-		for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
-			for (int x = 0; x < xSize; x++, ti += 6, vi++) {
-                triangles[ti] = vi;
-                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
-                triangles[ti + 5] = vi + xSize + 2;
-			}
-		}
-        mesh.triangles = triangles;
-        */
-        ground.transform.position = new Vector3(ground.transform.position.x, ground.transform.position.y - hedgesHeight, ground.transform.position.z);
+                int[] triangles = new int[xSize * ySize * 6];
+                for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
+                    for (int x = 0; x < xSize; x++, ti += 6, vi++) {
+                        triangles[ti] = vi;
+                        triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                        triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
+                        triangles[ti + 5] = vi + xSize + 2;
+                    }
+                }
+                mesh.triangles = triangles;
+                */
+        //ground.transform.position = new Vector3(ground.transform.position.x, ground.transform.position.y - hedgesHeight, ground.transform.position.z);
     }
 
     void TriangulateSquare(Square square)
