@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\EnemyTest.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
+    <Compile Include="Assets\Scripts\Pathfinder.cs" />
     <Compile Include="Assets\Scripts\Thorns\LSElement.cs" />
     <Compile Include="Assets\Scripts\Thorns\LSystem.cs" />
     <Compile Include="Assets\Scripts\Thorns\Rule.cs" />

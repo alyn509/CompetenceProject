@@ -1,84 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 
-public class EnemyTest : MonoBehaviour
-{
+public class Pathfinder : MonoBehaviour {
 
-    public float moveSpeed = 6.0F;
-    public float rotateSpeed = 100.0F;
-    public float jumpSpeed = 8.0F;
-    public float gravity = 20.0F;
-    private Vector3 moveDirection = Vector3.zero;
-    private Vector3 rotateDirection = Vector3.zero;
-    //private NavMeshAgent agent;
-    public List<Transform> patrolPoints = new List<Transform>();
-    int currentPoint = -1;
-    public Node[,] map;
-    MazeGenerator MazeGen;
-    int width;
-    int height;
-    bool mapCreated = false;
-    public GameObject drop;
-    bool pathfinding = false;
-    bool move = false;
-    private Thread m_Thread = null;
-    int count = 0;
+    /*public Node startPosition;
+    public Node endPosition;
+    EnemyTest.PathfindingJobComplete callback;
 
-    //Delegates are a variable that points to a function
-    public delegate void PathfindingJobComplete(List<Node> path);
+    public volatile bool jobDone = false;
 
 
-    public int MaxJobs = 2;
-
-    void Start()
+    public Pathfinder(Node start, Node target, EnemyTest.PathfindingJobComplete callback)
     {
-        currentPoint = 0;
-
-        MazeGen = GameObject.Find("MazeGenerator").GetComponent<MazeGenerator>();
-        map = MazeGen.nodeMap;
-        mapCreated = true;
-        width = map.GetLength(0);
-        height = map.GetLength(1);
-
+        startPosition = start;
+        endPosition = target;
+        //completeCallback = callback;
     }
 
-    void Update()
+    /*public void RequestPathfind(Node start, Node target, PathfindingJobComplete completeCallback)
     {
-        if (move)
-        {
-            gameObject.transform.position = CoordToWorldPoint(new Coord(Path[Path.Count - 1].x, Path[Path.Count - 1].y));
-            move = false;
-        }
+        Pathfinder newJob = new Pathfinder(start, target, completeCallback);
+        todoJobs.Add(newJob);
+    }*/
 
-        //this shouldn't be here, but I'm testing the functionality.
-        if (Input.GetKeyDown("b") && !pathfinding)
-        {
-            currentPoint++;
-            m_Thread = new Thread(Run);
-            m_Thread.Start();
-            //FindPath(map[0, 0], map[width/2-1, height/2-1]);
-            pathfinding = true;
-        }
 
-    }
-
-    private void Run()
-    {
-        if (count == 0)
-            FindPath(map[0, 0], map[width / 2 - 1, height / 2 - 1]);
-        else
-            FindPath(map[0, 0], map[width - 5, height -5]);
-        count++;
-    }
-
-    Vector3 CoordToWorldPoint(Coord tile)
-    {
-        return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
-    }
-
-    public List<Node> path;
+    /*public List<Node> path;
 
     public List<Node> GetNeighbours(Node node)
     {
@@ -190,5 +137,5 @@ public class EnemyTest : MonoBehaviour
             return 1000;
         else
             return 1;
-    }
+    }*/
 }
