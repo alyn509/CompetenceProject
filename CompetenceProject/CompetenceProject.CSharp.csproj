@@ -83,6 +83,7 @@
     <Compile Include="Assets\Scripts\EnemyTest.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
+    <Compile Include="Assets\testScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Characters\JellyFishGirl\ReadMe.txt" />

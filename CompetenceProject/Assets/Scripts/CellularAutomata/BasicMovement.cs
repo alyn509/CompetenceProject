@@ -21,7 +21,6 @@ public class BasicMovement : MonoBehaviour
         controller.Move(moveDirection * Time.deltaTime);
         if (controller.isGrounded)
         {
-            Debug.Log(" grounded :D");
             moveDirection = new Vector3(0, 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);
             moveDirection *= moveSpeed;
