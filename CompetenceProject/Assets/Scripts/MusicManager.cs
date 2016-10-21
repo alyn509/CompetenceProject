@@ -38,7 +38,6 @@ public class MusicManager : MonoBehaviour {
         audioSource = GetComponent<AudioSource>();
         soundEffectSource = gameObject.AddComponent<AudioSource>();
         audioSource.PlayOneShot(musicClip1, 0.7f);
-        Debug.Log("sound manager OK");
     }
 
     void Update()
@@ -50,7 +49,6 @@ public class MusicManager : MonoBehaviour {
         volume = audioSource.volume;
         if (Input.GetKeyDown("space") || fade)
         {
-            Debug.Log("space pushed");
             FadeOut(musicClip2);
         } else if (changingMusic)
         {
@@ -65,7 +63,6 @@ public class MusicManager : MonoBehaviour {
 
     public void FadeIn()
     {
-        Debug.Log("increasing volume");
         audioSource.volume += 0.2f * Time.deltaTime;
         if (audioSource.volume >= 0.7f)
         {
@@ -75,7 +72,6 @@ public class MusicManager : MonoBehaviour {
 
     public void FadeOut(AudioClip audioClip)
     {
-        Debug.Log("fading out");
         fade = true;
 
         if (audioSource.volume > 0.1f)// && !changingMusic)
@@ -97,7 +93,6 @@ public class MusicManager : MonoBehaviour {
     //Used to play single sound clips.
     public void PlaySingle(AudioClip clip)
     {
-        Debug.Log("playing music!");
         //Set the clip of our efxSource audio source to the clip passed in as a parameter.
         /*efxSource.clip = clip;
 
