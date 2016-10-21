@@ -18,7 +18,7 @@ public class CameraController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        position =  transform.parent.gameObject.transform;
+        position = GameObject.FindWithTag("Player").transform;
         originPos = transform.position;
     }
 	
@@ -41,9 +41,7 @@ public class CameraController : MonoBehaviour {
             {
                 originPos = position.TransformPoint(0, 4, -8);
                 Vector3 startPos = position.position - transform.position;
-                Quaternion newR = transform.localRotation;
-                Quaternion newQ = Quaternion.LookRotation(startPos);
-                transform.localRotation = Quaternion.Slerp(newR, newQ, lerpRSmooth * Time.deltaTime * 10);
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.LookRotation(startPos), lerpRSmooth * Time.deltaTime * 10);
                 transform.position = Vector3.Lerp(transform.position, originPos, lerpSmooth * Time.deltaTime * 10);
             }
         }
