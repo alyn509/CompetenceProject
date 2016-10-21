@@ -42,10 +42,13 @@ public class MazeGenerator : MonoBehaviour
 
     [HideInInspector]
     public int[,] map;
+    public Node[,] nodeMap;
 
     List<Coord> listOfCoord = new List<Coord>();
 
     public GameObject drop;
+
+    public bool generationDone = false;
 
     void Start()
     {
@@ -86,7 +89,9 @@ public class MazeGenerator : MonoBehaviour
         GameObject newnewPoint = Instantiate(drop) as GameObject;
         newnewPoint.transform.position = mazeExit + new Vector3(0, 2, 0);
         newnewPoint.GetComponent<Renderer>().material.color = Color.blue;
-             
+
+        generationDone = true;
+        CreateNodeMap();
 
      /*foreach (Vector3 vec in dropAreas)
      {
@@ -94,6 +99,21 @@ public class MazeGenerator : MonoBehaviour
          newObj.transform.position = vec;
      }*/
         Debug.Log("Number of rooms: " + roomsInMaze.Count + "and dropAreas: " + dropAreas.Count + " and taken tiles: " + TakenSpaces.Count + " and takenspaces found times: " + takenSpaces + " and room 0 checked: " + roomOchecked + " times.");
+    }
+
+    void CreateNodeMap()
+    {
+        width = map.GetLength(0);
+        height = map.GetLength(1);
+        nodeMap = new Node[map.GetLength(0), map.GetLength(1)];
+        for (int x = 0; x < map.GetLength(0); x++)
+        {
+            for (int y = 0; y < map.GetLength(1); y++)
+            {
+                nodeMap[x, y] = new Node(CoordToWorldPoint(new Coord(x, y)), x, y);
+                nodeMap[x, y].Type = map[x, y];
+            }
+        }
     }
 
     //take into consideration that we are dropping enemies, the player,
