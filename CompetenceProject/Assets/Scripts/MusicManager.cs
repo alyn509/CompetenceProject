@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MusicManager : MonoBehaviour {
 
     public AudioClip musicClip1;                   //Drag a reference to the audio source which will play the sound effects.
     public AudioClip musicClip2;                 //Drag a reference to the audio source which will play the music.
+
+    public List<AudioClip> fightingSounds = new List<AudioClip>();
     public static MusicManager instance = null;     //Allows other scripts to call functions from SoundManager.             
     public float lowPitchRange = .95f;              //The lowest a sound effect will be randomly pitched.
     public float highPitchRange = 1.05f;            //The highest a sound effect will be randomly pitched.
@@ -13,6 +16,8 @@ public class MusicManager : MonoBehaviour {
     public float volume  = 0.1f;
 
    AudioSource audioSource;
+    //mostly so the volume doesn't lower at bg music fadeout (and to keep you from pressing the button constantly!)
+    AudioSource soundEffectSource; 
 
     void Awake()
     {
@@ -29,13 +34,19 @@ public class MusicManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
         //PlaySingle(musicSource.GetComponent<AudioClip>());
 
+        
         audioSource = GetComponent<AudioSource>();
+        soundEffectSource = gameObject.AddComponent<AudioSource>();
         audioSource.PlayOneShot(musicClip1, 0.7f);
         Debug.Log("sound manager OK");
     }
 
     void Update()
     {
+        if (Input.GetKeyDown("a") && !soundEffectSource.isPlaying)
+        {
+            soundEffectSource.PlayOneShot(fightingSounds[3], 0.7f);
+        }
         volume = audioSource.volume;
         if (Input.GetKeyDown("space") || fade)
         {
@@ -44,6 +55,11 @@ public class MusicManager : MonoBehaviour {
         } else if (changingMusic)
         {
             FadeIn();
+        }
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(musicClip1, 1f);
         }
     }
 
@@ -70,7 +86,7 @@ public class MusicManager : MonoBehaviour {
         else 
         {
             audioSource.Stop();
-            audioSource.PlayOneShot(audioClip, 0.1f);
+            audioSource.PlayOneShot(audioClip, 1f);
             fade = false;
             changingMusic = true;
         }
