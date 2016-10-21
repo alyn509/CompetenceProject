@@ -83,6 +83,11 @@
     <Compile Include="Assets\Scripts\EnemyTest.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
+    <Compile Include="Assets\Scripts\Thorns\LSElement.cs" />
+    <Compile Include="Assets\Scripts\Thorns\LSystem.cs" />
+    <Compile Include="Assets\Scripts\Thorns\Rule.cs" />
+    <Compile Include="Assets\Scripts\Thorns\Turtle.cs" />
+    <Compile Include="Assets\Scripts\Thorns\TurtleState.cs" />
     <Compile Include="Assets\testScript.cs" />
   </ItemGroup>
   <ItemGroup>

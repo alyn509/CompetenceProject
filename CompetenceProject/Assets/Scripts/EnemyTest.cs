@@ -20,35 +20,35 @@ public class EnemyTest : MonoBehaviour
     int height;
     bool mapCreated = false;
     public GameObject drop;
+    bool pathfinding = false;
+    bool move = false;
 
     void Start()
     {
         currentPoint = 0;
 
         MazeGen = GameObject.Find("MazeGenerator").GetComponent<MazeGenerator>();
+        map = MazeGen.nodeMap;
+        mapCreated = true;
+        width = map.GetLength(0);
+        height = map.GetLength(1);
 
     }
 
     void Update()
     {
-        if (!mapCreated && MazeGen.generationDone)
+        if (move)
         {
-            map = MazeGen.nodeMap;
-            mapCreated = true;
-            width = map.GetLength(0);
-            height = map.GetLength(1);
+            gameObject.transform.position = CoordToWorldPoint(new Coord(Path[Path.Count - 1].x, Path[Path.Count - 1].y));
+            move = false;
         }
 
-        if (Input.GetKeyDown("space") && mapCreated)
+        //this shouldn't be here, but I'm testing the functionality.
+        if (Input.GetKeyDown("b") && !pathfinding)
         {
             currentPoint++;
             FindPath(map[0, 0], map[width/2-1, height/2-1]);
-            GameObject obj = Instantiate(drop) as GameObject;
-            obj.transform.position = CoordToWorldPoint(new Coord(width / 2 - 1, height / 2 - 1));
-
-            this.transform.position = CoordToWorldPoint(new Coord(width, height));
-            Debug.Log("Path length: " + Path.Count);
-            gameObject.transform.position = CoordToWorldPoint(new Coord(Path[Path.Count-1].x, Path[Path.Count - 1].y));
+            pathfinding = true;
         }
 
     }
@@ -148,6 +148,9 @@ public class EnemyTest : MonoBehaviour
         }
         path.Reverse();
         Path = path;
+
+        pathfinding = false;
+        move = true;
     }
 
     //float GetDistance(Node locationA, Node locationB)
