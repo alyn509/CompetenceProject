@@ -89,6 +89,8 @@
     <Compile Include="Assets\Scripts\CellularAutomata\Triangle.cs" />
     <Compile Include="Assets\Scripts\EnemyTest.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
+    <Compile Include="Assets\Scripts\Items\Item.cs" />
+    <Compile Include="Assets\Scripts\Items\ItemManager.cs" />
     <Compile Include="Assets\Scripts\MusicManager.cs" />
     <Compile Include="Assets\Scripts\Pathfinder.cs" />
     <Compile Include="Assets\Scripts\Thorns\LSElement.cs" />

@@ -57,6 +57,7 @@ public class MusicManager : MonoBehaviour {
 
         if (!audioSource.isPlaying)
         {
+            //fade in, if possible.
             audioSource.PlayOneShot(musicClip1, 1f);
         }
     }

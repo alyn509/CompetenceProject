@@ -49,6 +49,7 @@ public class MazeGenerator : MonoBehaviour
     public GameObject drop;
 
     public bool generationDone = false;
+    public ItemManager itemManager;
 
     void Start()
     {
@@ -56,9 +57,7 @@ public class MazeGenerator : MonoBehaviour
         //right now this finds (and fills) all possible spaces.
         //add possibility of chosing a set number?
         FindStartAndEndPos();
-        dropAreas.Add(playerStart);
         GameObject.FindGameObjectWithTag("Player").transform.position = playerStart;
-        dropAreas.Add(mazeExit);
 
 
         GenerateDropAreas(3, 100);
@@ -70,7 +69,7 @@ public class MazeGenerator : MonoBehaviour
                  Debug.DrawLine(dropAreas[i], dropAreas[i+1], Color.red, 100);
              }
          }*/
-        int test = 0;
+      /*  int test = 0;
        foreach (Coord tile in TakenSpaces)
         {
             GameObject newObj = Instantiate(drop) as GameObject;
@@ -79,8 +78,8 @@ public class MazeGenerator : MonoBehaviour
                 newObj.GetComponent<Renderer>().material.color = Color.blue;
             else if ( test < 11)
                 newObj.GetComponent<Renderer>().material.color = Color.yellow;
-            test++;*/
-        }
+            test++;
+        }*/
 
         GameObject newPoint = Instantiate(drop) as GameObject;
         newPoint.transform.position = playerStart + new Vector3 (0, 2, 0);
@@ -92,6 +91,7 @@ public class MazeGenerator : MonoBehaviour
 
         generationDone = true;
         CreateNodeMap();
+        itemManager.DropItems(dropAreas);
 
      /*foreach (Vector3 vec in dropAreas)
      {

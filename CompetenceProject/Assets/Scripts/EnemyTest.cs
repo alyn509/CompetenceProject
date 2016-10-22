@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Threading;
 
 public class EnemyTest : MonoBehaviour
-{
-
+{ 
     public float moveSpeed = 6.0F;
     public float rotateSpeed = 100.0F;
     public float jumpSpeed = 8.0F;
     public float gravity = 20.0F;
     private Vector3 moveDirection = Vector3.zero;
     private Vector3 rotateDirection = Vector3.zero;
+    public Node startPoint;
     //private NavMeshAgent agent;
     public List<Transform> patrolPoints = new List<Transform>();
     int currentPoint = -1;
@@ -25,6 +25,7 @@ public class EnemyTest : MonoBehaviour
     bool move = false;
     private Thread m_Thread = null;
     int count = 0;
+    public int life = 3;
 
     //Delegates are a variable that points to a function
     public delegate void PathfindingJobComplete(List<Node> path);
@@ -41,15 +42,29 @@ public class EnemyTest : MonoBehaviour
         mapCreated = true;
         width = map.GetLength(0);
         height = map.GetLength(1);
+        startPoint = map[5, 5];
+        transform.position = CoordToWorldPoint(new Coord(startPoint.x, startPoint.y));
 
     }
-
+    int pathPoint = 0;
+    Vector3 currentGoal;
+    float speed = 2f;
     void Update()
     {
         if (move)
         {
-            gameObject.transform.position = CoordToWorldPoint(new Coord(Path[Path.Count - 1].x, Path[Path.Count - 1].y));
-            move = false;
+            if (Vector3.Distance(transform.position, CoordToWorldPoint(new Coord(Path[pathPoint].x, Path[pathPoint].y))) < 2f && pathPoint < Path.Count-1)
+            {
+                pathPoint++;
+                currentGoal = CoordToWorldPoint(new Coord(Path[pathPoint].x, Path[pathPoint].y));
+            }
+            if (pathPoint >= Path.Count - 1)
+            {
+                move = false;
+            }
+            float step = speed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, currentGoal, step);
+
         }
 
         //this shouldn't be here, but I'm testing the functionality.
@@ -64,16 +79,48 @@ public class EnemyTest : MonoBehaviour
 
     }
 
+    void OnTriggerEnter(Collider collision)
+    {
+        Debug.Log("Collision!");
+        //If we collided with a player, add item to player.
+        if (collision.transform.tag == "bullet" || collision.transform.tag == "Player")
+        {
+            GameObject.FindGameObjectWithTag("Player").transform.GetComponent<BasicMovement>().addPoints(5);
+            life--;
+            Debug.Log("Found bullet/player");
+            if (life <= 0)
+            {
+                Death();
+            }          
+        }
+
+        if (collision.transform.tag == "Player")
+        {
+            collision.transform.GetComponent<BasicMovement>().addPoints(5);
+        }
+    }
+
+    void Death()
+    {
+        //play death animation
+        Destroy(gameObject);
+    }
+
     private void Run()
     {
         if (count == 0)
-            FindPath(map[0, 0], map[width / 2 - 1, height / 2 - 1]);
+            FindPath(startPoint, map[width / 2 - 1, height / 2 - 1]);
         else
-            FindPath(map[0, 0], map[width - 5, height -5]);
+            FindPath(startPoint, map[width - 5, height -5]);
         count++;
     }
 
     Vector3 CoordToWorldPoint(Coord tile)
+    {
+        return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
+    }
+
+    Vector3 WorldToCoordPoint(Coord tile)
     {
         return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
     }
@@ -171,6 +218,7 @@ public class EnemyTest : MonoBehaviour
 
         pathfinding = false;
         move = true;
+        currentGoal = CoordToWorldPoint(new Coord(Path[pathPoint].x, Path[pathPoint].y));
     }
 
     //float GetDistance(Node locationA, Node locationB)
