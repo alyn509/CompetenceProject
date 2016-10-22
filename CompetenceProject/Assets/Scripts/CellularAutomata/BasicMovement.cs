@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BasicMovement : MonoBehaviour
 {
@@ -14,10 +15,17 @@ public class BasicMovement : MonoBehaviour
     public bool hasGun = false;
     public GameObject gotGunParticles;
     public int Score;
+    public int life = 3;
+    public List<GameObject> bodyParts;
+    List<Color> normalColours = new List<Color>();
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        foreach (GameObject model in bodyParts)
+        {
+            normalColours.Add(model.GetComponent<Renderer>().material.color);
+        }
     }
 
     void Update()
@@ -53,8 +61,39 @@ public class BasicMovement : MonoBehaviour
     {
 
         //get music manager, play points given sound.
-        Score += points;
-        
+        Score += points;  
+    }
+
+    public void Hit()
+    {
+        life--;
+        if (life > 0) {
+            StartCoroutine(Flasher());
+
+            //hit back?
+        } else
+        {
+            //play death animation/pausing, etc.
+        }
+
+    }
+
+    IEnumerator Flasher()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            /*this.GetComponent<Renderer>().material.color = Color.red;
+            yield return new WaitForSeconds(.5f);
+            this.GetComponent<Renderer>().material.color = normalColor;*/
+            for (int k = 0; k < bodyParts.Count; k++) {
+                bodyParts[k].GetComponent<Renderer>().material.color = Color.red;
+            }
+            yield return new WaitForSeconds(.25f);
+            for (int k = 0; k < bodyParts.Count; k++)
+            {
+                bodyParts[k].GetComponent<Renderer>().material.color = normalColours[k];
+            }
+        }
     }
 
     public void ActivateGun()
