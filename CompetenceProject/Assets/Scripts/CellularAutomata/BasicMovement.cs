@@ -82,13 +82,13 @@ public class BasicMovement : MonoBehaviour
     {
         for (int i = 0; i < 3; i++)
         {
-            /*this.GetComponent<Renderer>().material.color = Color.red;
-            yield return new WaitForSeconds(.5f);
-            this.GetComponent<Renderer>().material.color = normalColor;*/
+
             for (int k = 0; k < bodyParts.Count; k++) {
                 bodyParts[k].GetComponent<Renderer>().material.color = Color.red;
             }
-            yield return new WaitForSeconds(.25f);
+
+            yield return new WaitForSeconds(.15f);
+
             for (int k = 0; k < bodyParts.Count; k++)
             {
                 bodyParts[k].GetComponent<Renderer>().material.color = normalColours[k];

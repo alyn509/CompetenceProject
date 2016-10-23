@@ -72,6 +72,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Characters\Elf\Script\Elf_Manager.cs" />
+    <Compile Include="Assets\Characters\Elf\Script\Manager.cs" />
     <Compile Include="Assets\Characters\Frogs\GUIScript.cs" />
     <Compile Include="Assets\Characters\JellyFishGirl\Scripts\ChaScript.cs" />
     <Compile Include="Assets\Characters\JellyFishGirl\Scripts\Move.cs" />

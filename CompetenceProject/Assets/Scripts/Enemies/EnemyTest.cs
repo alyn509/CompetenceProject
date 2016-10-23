@@ -146,11 +146,6 @@ public class EnemyTest : MonoBehaviour
         return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
     }
 
-    Vector3 WorldToCoordPoint(Coord tile)
-    {
-        return new Vector3(-width / 2 + .5f + tile.tileX, 2, -height / 2 + .5f + tile.tileY);
-    }
-
     public List<Node> path;
 
     public List<Node> GetNeighbours(Node node)
@@ -170,6 +165,49 @@ public class EnemyTest : MonoBehaviour
             }
         }
         return neighbours;
+    }
+
+    bool IsInMapRange(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    public int CheckNeighbourRadius(int radius, int xPos, int yPos)
+    {
+        Node tile = map[xPos, yPos];
+        bool breakLoops = false;
+        for (int x = -radius; x <= radius; x++)
+        {
+            for (int y = -radius; y <= radius; y++)
+            {
+                if (x * x + y * y <= radius * radius)
+                {
+                    int checkX = tile.x + x;
+                    int checkY = tile.x + y;
+                    if (IsInMapRange(checkX, checkY)) // if it's on the map...
+                    {
+                        if (map[checkX, checkY].Type == 1)
+                        {// ... and it's a wall, or taken, break the loop and go to another tile!
+                            breakLoops = true;
+                            break;
+                        }
+                    }
+                    else
+                    {   // if not on map, breakx2 and go to new tile!
+                        breakLoops = true;
+                        break;
+                    }
+                }
+                if (breakLoops)
+                    break;
+            }
+        }
+        if (!breakLoops)
+        {
+            return 1000;
+        }
+        else
+            return 1;
     }
 
     void FindPath(Node startNode, Node targetNode)
@@ -200,7 +238,6 @@ public class EnemyTest : MonoBehaviour
             }
 
             List<Node> neighbours = GetNeighbours(currentNode);
-            //Debug.Log("number of neighbours: " + neighbours.Count);
             foreach (Node neighbour in neighbours)
             {
                 if (Closed.Contains(neighbour))
@@ -208,11 +245,11 @@ public class EnemyTest : MonoBehaviour
                     continue;
                 }
 
-                float newCostToAdj = currentNode.G + CostToEnter(currentNode.x, currentNode.y);
+                float newCostToAdj = currentNode.G + CheckNeighbourRadius(5, currentNode.x, currentNode.y) + CostToEnter(currentNode.x, currentNode.y);
                 if (newCostToAdj < neighbour.G || !Open.Contains(neighbour))
                 {
                     neighbour.G = newCostToAdj;
-                    neighbour.H = CostToEnter(currentNode.x, currentNode.y);
+                    neighbour.H = CheckNeighbourRadius(5, currentNode.x, currentNode.y) + CostToEnter(currentNode.x, currentNode.y);
                     neighbour.ParentNode = currentNode;
 
                     if (!Open.Contains(neighbour))
@@ -260,6 +297,7 @@ public class EnemyTest : MonoBehaviour
 
     public float CostToEnter(int x, int y)
     {
+        //return CheckNeighbourRadius();
         if (map[x, y].Type == 1)
             return 1000;
         else
